@@ -4,20 +4,14 @@ pipeline {
     environment {
         SITE_NAME = "QuanLyThietBiSite"
         IIS_PORT = "81"
+        SOURCE_PATH = "D:\\BaiTapLon\\QuanLyThietBi\\_frontend"
         IIS_PATH = "C:\\wwwroot\\QuanLyThietBi"
     }
 
     stages {
-        stage('🔁 Clone Source Code') {
-            steps {
-                echo 'Cloning source code từ GitHub...'
-                git branch: 'main', url: 'https://github.com/Tdun2005/BaiTapLon.git'
-            }
-        }
-
         stage('🧹 Clean Old Deploy Folder') {
             steps {
-                echo 'Xoá nội dung cũ trong thư mục deploy...'
+                echo '🧹 Xoá nội dung cũ trong thư mục IIS...'
                 bat 'rmdir /S /Q "%IIS_PATH%"'
                 bat 'mkdir "%IIS_PATH%"'
             }
@@ -25,14 +19,14 @@ pipeline {
 
         stage('📂 Copy Static Web to IIS Folder') {
             steps {
-                echo 'Copy thư mục _frontend vào thư mục IIS...'
-                bat 'xcopy "%WORKSPACE%\\QuanLyThietBi\\_frontend" "%IIS_PATH%" /E /Y /I /R'
+                echo '📂 Copy _frontend từ D:\\BaiTapLon vào thư mục IIS...'
+                bat 'xcopy "%SOURCE_PATH%" "%IIS_PATH%" /E /Y /I /R'
             }
         }
 
         stage('🌐 Deploy to IIS') {
             steps {
-                echo "Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
+                echo "🌐 Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
 
                 bat """
                 powershell -NoProfile -ExecutionPolicy Bypass -Command "& {
@@ -54,7 +48,7 @@ pipeline {
 
         stage('✅ Finish') {
             steps {
-                echo '✅ Triển khai hoàn tất! Vào trình duyệt truy cập:'
+                echo '✅ Triển khai hoàn tất! Mở trình duyệt và truy cập:'
                 echo '👉 http://localhost:81'
             }
         }
