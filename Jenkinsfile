@@ -9,56 +9,28 @@ pipeline {
             }
         }
 
-        stage('Restore Packages') {
+        stage('Copy Static Web') {
             steps {
-                echo '📦 Restore packages'
-                bat 'dotnet restore'
-            }
-        }
-
-        stage('Build Project') {
-            steps {
-                echo '🏗️ Building project (.NET Core)'
-                bat 'dotnet build --configuration Release'
-            }
-        }
-
-        stage('Test Project') {
-            steps {
-                echo '✅ Running tests...'
-                bat 'dotnet test --no-build --verbosity normal'
-            }
-        }
-
-        stage('Publish to folder') {
-            steps {
-                echo '📤 Publishing to ./publish folder'
-                bat 'dotnet publish -c Release -o ./publish'
-            }
-        }
-
-        stage('Copy to Running Folder') {
-            steps {
-                echo '📁 Copy publish to C:\\wwwroot\\BaiTapLon'
-                bat 'xcopy "%WORKSPACE%\\publish" "C:\\wwwroot\\BaiTapLon" /E /Y /I /R'
+                echo '📂 Copy QuanLyThietBi to IIS folder'
+                bat 'xcopy "%WORKSPACE%\\QuanLyThietBi" "C:\\wwwroot\\QuanLyThietBi" /E /Y /I /R'
             }
         }
 
         stage('Deploy to IIS') {
             steps {
-                echo '🌐 Deploying to IIS'
+                echo '🌐 Tạo website QuanLyThietBi trên IIS (port 81)'
                 powershell '''
                 Import-Module WebAdministration
 
-                $siteName = "BaiTapLonSite"
+                $siteName = "QuanLyThietBiSite"
                 $port = 81
-                $path = "C:\\wwwroot\\BaiTapLon"
+                $physicalPath = "C:\\wwwroot\\QuanLyThietBi"
 
                 if (-not (Test-Path IIS:\\Sites\\$siteName)) {
-                    New-Website -Name $siteName -Port $port -PhysicalPath $path -ApplicationPool ".NET v4.5"
+                    New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath
                 }
                 else {
-                    Write-Output "Website already exists"
+                    Write-Output "✅ Website đã tồn tại, không cần tạo lại."
                 }
                 '''
             }
