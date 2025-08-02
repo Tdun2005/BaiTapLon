@@ -34,21 +34,21 @@ pipeline {
             steps {
                 echo "Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
 
-                powershell '''
-                Import-Module WebAdministration
-
-                $siteName = $env:SITE_NAME
-                $port = $env:IIS_PORT
-                $physicalPath = $env:IIS_PATH
-
-                if (Test-Path "IIS:\\Sites\\$siteName") {
-                    Write-Output "🌐 Website đã tồn tại. Restart lại..."
-                    Restart-WebItem "IIS:\\Sites\\$siteName"
-                } else {
-                    Write-Output "🆕 Website chưa tồn tại. Tạo mới..."
-                    New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath
-                }
-                '''
+                bat """
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "& {
+                    Import-Module WebAdministration;
+                    \$siteName = '${env.SITE_NAME}';
+                    \$port = ${env.IIS_PORT};
+                    \$physicalPath = '${env.IIS_PATH}';
+                    if (Test-Path IIS:\\\\Sites\\\\\$siteName) {
+                        Write-Output '🌐 Website đã tồn tại. Restart lại...';
+                        Restart-WebItem IIS:\\\\Sites\\\\\$siteName;
+                    } else {
+                        Write-Output '🆕 Website chưa tồn tại. Tạo mới...';
+                        New-Website -Name \$siteName -Port \$port -PhysicalPath \$physicalPath;
+                    }
+                }"
+                """
             }
         }
 
