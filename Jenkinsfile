@@ -1,38 +1,61 @@
 pipeline {
     agent any
 
+    environment {
+        SITE_NAME = "QuanLyThietBiSite"
+        IIS_PORT = "81"
+        IIS_PATH = "C:\\wwwroot\\QuanLyThietBi"
+    }
+
     stages {
-        stage('Clone') {
+        stage('🔁 Clone Source Code') {
             steps {
-                echo '🔁 Cloning source code'
+                echo 'Cloning source code từ GitHub...'
                 git branch: 'main', url: 'https://github.com/Tdun2005/BaiTapLon.git'
             }
         }
 
-        stage('Copy Static Web') {
+        stage('🧹 Clean Old Deploy Folder') {
             steps {
-                echo '📂 Copy QuanLyThietBi to IIS folder'
-                bat 'xcopy "%WORKSPACE%\\QuanLyThietBi" "C:\\wwwroot\\QuanLyThietBi" /E /Y /I /R'
+                echo 'Xoá nội dung cũ trong thư mục deploy...'
+                bat 'rmdir /S /Q "%IIS_PATH%"'
+                bat 'mkdir "%IIS_PATH%"'
             }
         }
 
-        stage('Deploy to IIS') {
+        stage('📂 Copy Static Web to IIS Folder') {
             steps {
-                echo '🌐 Tạo website QuanLyThietBi trên IIS (port 81)'
+                echo 'Copy thư mục _frontend vào thư mục IIS...'
+                bat 'xcopy "%WORKSPACE%\\QuanLyThietBi\\_frontend" "%IIS_PATH%" /E /Y /I /R'
+            }
+        }
+
+        stage('🌐 Deploy to IIS') {
+            steps {
+                echo "Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
+
                 powershell '''
                 Import-Module WebAdministration
 
-                $siteName = "QuanLyThietBiSite"
-                $port = 81
-                $physicalPath = "C:\\wwwroot\\QuanLyThietBi"
+                $siteName = $env:SITE_NAME
+                $port = $env:IIS_PORT
+                $physicalPath = $env:IIS_PATH
 
-                if (-not (Test-Path IIS:\\Sites\\$siteName)) {
+                if (Test-Path "IIS:\\Sites\\$siteName") {
+                    Write-Output "🌐 Website đã tồn tại. Restart lại..."
+                    Restart-WebItem "IIS:\\Sites\\$siteName"
+                } else {
+                    Write-Output "🆕 Website chưa tồn tại. Tạo mới..."
                     New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath
                 }
-                else {
-                    Write-Output "✅ Website đã tồn tại, không cần tạo lại."
-                }
                 '''
+            }
+        }
+
+        stage('✅ Finish') {
+            steps {
+                echo '✅ Triển khai hoàn tất! Vào trình duyệt truy cập:'
+                echo '👉 http://localhost:81'
             }
         }
     }
