@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trang chủ - Quản lý thiết bị</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      color: #333;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      text-transform: uppercase;
+      font-size: 34px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #fff;
+    }
+
+    .device-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .device-form input,
+    .device-form select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .device-form button {
+      padding: 12px 20px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .device-form button:hover {
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    th {
+      background: #ff758c;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    td {
+      background: #fff;
+    }
+
+    .actions button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .actions .edit-btn {
+      background: #ffc107;
+      color: white;
+    }
+
+    .actions .delete-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .terms {
+      background: #fefefe;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .back-btn:hover {
+      background: #343a40;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quản lý thiết bị</h1>
+
+  <div class="device-form">
+    <input type="text" id="deviceName" placeholder="Tên thiết bị" />
+    <input type="number" id="quantity" placeholder="Số lượng" min="1" />
+    <input type="date" id="addedDate" />
+    <select id="deviceType">
+      <option value="">-- Chọn loại thiết bị --</option>
+      <option>Máy tính</option>
+      <option>Máy chiếu</option>
+      <option>Thiết bị mạng</option>
+      <option>Thiết bị văn phòng</option>
+      <option>Khác</option>
+    </select>
+    <button onclick="addDevice()">Thêm thiết bị</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Tên thiết bị</th>
+        <th>Số lượng</th>
+        <th>Loại</th>
+        <th>Ngày thêm</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody id="deviceTableBody"></tbody>
+  </table>
+
+  <div class="terms">
+    <strong>Điều khoản sử dụng:</strong> Hệ thống quản lý thiết bị này được thiết kế phục vụ việc theo dõi, thống kê và kiểm kê tài sản công của nhà trường. Mọi hành vi gian lận hoặc sử dụng sai mục đích đều bị nghiêm cấm.
+  </div>
+
+  <a href="index.html" class="back-btn">← Quay lại đăng nhập</a>
+
+  <script>
+    let devices = [];
+
+    function renderDevices() {
+      const tbody = document.getElementById("deviceTableBody");
+      tbody.innerHTML = "";
+
+      devices.forEach((device, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${device.name}</td>
+          <td>${device.quantity}</td>
+          <td>${device.type}</td>
+          <td>${device.date}</td>
+          <td class="actions">
+            <button class="edit-btn" onclick="editDevice(${index})">Sửa</button>
+            <button class="delete-btn" onclick="deleteDevice(${index})">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function addDevice() {
+      const name = document.getElementById("deviceName").value.trim();
+      const quantity = parseInt(document.getElementById("quantity").value.trim());
+      const date = document.getElementById("addedDate").value;
+      const type = document.getElementById("deviceType").value;
+
+      if (!name || isNaN(quantity) || quantity < 1 || !date || !type) {
+        alert("Vui lòng điền đầy đủ và hợp lệ tất cả các trường.");
+        return;
+      }
+
+      devices.push({ name, quantity, date, type });
+      document.getElementById("deviceName").value = "";
+      document.getElementById("quantity").value = "";
+      document.getElementById("addedDate").value = "";
+      document.getElementById("deviceType").value = "";
+      renderDevices();
+    }
+
+    function editDevice(index) {
+      const device = devices[index];
+      const newName = prompt("Tên mới của thiết bị:", device.name);
+      const newQty = prompt("Số lượng mới:", device.quantity);
+      const newType = prompt("Loại thiết bị mới:", device.type);
+      const newDate = prompt("Ngày thêm mới (yyyy-mm-dd):", device.date);
+
+      if (newName && !isNaN(parseInt(newQty)) && newType && newDate) {
+        devices[index] = {
+          name: newName.trim(),
+          quantity: parseInt(newQty),
+          type: newType.trim(),
+          date: newDate
+        };
+        renderDevices();
+      } else {
+        alert("Thông tin không hợp lệ!");
+      }
+    }
+
+    function deleteDevice(index) {
+      if (confirm("Bạn có chắc chắn muốn xóa thiết bị này không?")) {
+        devices.splice(index, 1);
+        renderDevices();
+      }
+    }
+
+    renderDevices();
+  </script>
+</body>
+</html>

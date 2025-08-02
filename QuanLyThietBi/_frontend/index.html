@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập - Quản lý thiết bị</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.25);
+      width: 400px;
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .captcha-box {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .captcha-code {
+      font-weight: bold;
+      font-size: 20px;
+      background: #f2f2f2;
+      padding: 10px 20px;
+      border-radius: 8px;
+      letter-spacing: 3px;
+    }
+
+    .actions-box {
+      display: flex;
+      justify-content: space-around;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .actions-box a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .actions-box a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 20px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Đăng nhập</h2>
+    <input type="text" id="username" placeholder="Tên đăng nhập">
+    <input type="password" id="password" placeholder="Mật khẩu">
+
+    <div class="captcha-box">
+      <div class="captcha-code" id="captchaCode">12345</div>
+      <input type="text" id="captchaInput" placeholder="Nhập mã xác thực">
+    </div>
+
+    <div class="actions-box">
+      <a href="forgot-password.html">Quên mật khẩu?</a>
+      <a href="register.html">Đăng ký</a>
+    </div>
+
+    <button onclick="login()">ĐĂNG NHẬP</button>
+  </div>
+
+  <script>
+    // Sinh mã captcha ngẫu nhiên
+    function generateCaptcha() {
+      const number = Math.floor(10000 + Math.random() * 90000); // 5 chữ số
+      document.getElementById("captchaCode").innerText = number;
+      return number.toString();
+    }
+
+    let currentCaptcha = generateCaptcha();
+
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const captchaInput = document.getElementById("captchaInput").value.trim();
+
+      if (!username || !password || !captchaInput) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+
+      if (captchaInput !== currentCaptcha) {
+        alert("Mã xác thực không đúng!");
+        currentCaptcha = generateCaptcha();
+        return;
+      }
+
+      // Gửi yêu cầu API tới backend để kiểm tra đăng nhập
+      fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Đăng nhập thành công!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Sai tên đăng nhập hoặc mật khẩu!");
+          currentCaptcha = generateCaptcha();
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Lỗi kết nối đến máy chủ.");
+        currentCaptcha = generateCaptcha();
+      });
+    }
+  </script>
+</body>
+</html>

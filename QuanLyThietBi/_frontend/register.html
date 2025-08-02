@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng ký - Quản lý thiết bị</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 800% 800%;
+      animation: sparkle 12s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .register-container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      width: 520px;
+      animation: fadeIn 1.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: #333;
+      font-weight: 900;
+      background: linear-gradient(to right, #ff416c, #ff4b2b, #fcb045, #00c9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #00c6ff;
+      box-shadow: 0 0 5px #00c6ff;
+    }
+
+    .captcha-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .captcha-code {
+      font-weight: bold;
+      font-size: 22px;
+      background: #eee;
+      padding: 10px 24px;
+      border-radius: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    .validation {
+      font-size: 14px;
+      color: red;
+      margin-top: -5px;
+      margin-bottom: 5px;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 20px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+
+    #registerError {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Đăng ký tài khoản</h2>
+
+    <input type="text" id="fullName" placeholder="Họ và tên">
+    <div id="nameError" class="validation">Họ tên cần ít nhất 2 chữ.</div>
+
+    <input type="text" id="email" placeholder="Email">
+    <div id="emailError" class="validation">Email không hợp lệ.</div>
+
+    <label for="birthday">Ngày sinh:</label>
+    <input type="date" id="birthday">
+
+    <label for="gender">Giới tính:</label>
+    <select id="gender">
+      <option>Nam</option>
+      <option>Nữ</option>
+      <option>Khác</option>
+    </select>
+
+    <label for="province">Quê quán:</label>
+    <select id="province">
+      <option value="">-- Chọn tỉnh thành --</option>
+      <option>Hà Nội</option>
+      <option>TP. Hồ Chí Minh</option>
+      <option>Đà Nẵng</option>
+      <option>Cần Thơ</option>
+      <option>Hải Phòng</option>
+      <option>Huế</option>
+      <option>Khác</option>
+    </select>
+
+    <label for="role">Vai trò:</label>
+    <select id="role" onchange="handleRoleChange()">
+      <option value="GiaoVien">Giáo viên</option>
+      <option value="Admin">Admin</option>
+      <option value="QuanTriVien">Quản trị viên</option>
+    </select>
+
+    <input type="file" id="teacherImage" style="display: none;">
+    <input type="text" id="internalCode" placeholder="Nhập mã số nội bộ" style="display: none;">
+
+    <input type="text" id="newUsername" placeholder="Tên đăng nhập">
+    <input type="password" id="newPassword" placeholder="Mật khẩu">
+    <div id="passwordStrength" class="validation">Mật khẩu phải có ít nhất 6 ký tự, gồm cả chữ hoa, chữ thường và số.</div>
+
+    <div class="captcha-box">
+      <div class="captcha-code" id="captchaCode">12345</div>
+      <input type="text" id="captchaInput" placeholder="Nhập mã xác thực">
+    </div>
+
+    <div id="registerError" class="validation">Tên đăng nhập đã tồn tại.</div>
+
+    <button onclick="register()">Đăng ký</button>
+  </div>
+
+  <script>
+    function generateCaptcha() {
+      const number = Math.floor(10000 + Math.random() * 90000);
+      document.getElementById("captchaCode").innerText = number;
+      return number.toString();
+    }
+
+    let currentCaptcha = generateCaptcha();
+
+    function handleRoleChange() {
+      const role = document.getElementById("role").value;
+      document.getElementById("teacherImage").style.display = role === "GiaoVien" ? "block" : "none";
+      document.getElementById("internalCode").style.display = (role === "Admin" || role === "QuanTriVien") ? "block" : "none";
+    }
+
+    function validateEmail(email) {
+      const re = /^[^@]+@[^@]+\.[^@]+$/;
+      return re.test(email);
+    }
+
+    function validatePassword(pw) {
+      return pw.length >= 6 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /\d/.test(pw);
+    }
+
+    function register() {
+      const fullName = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const username = document.getElementById("newUsername").value.trim();
+      const password = document.getElementById("newPassword").value;
+      const role = document.getElementById("role").value;
+      const internalCode = document.getElementById("internalCode").value.trim();
+      const teacherImage = document.getElementById("teacherImage").files[0];
+      const captchaInput = document.getElementById("captchaInput").value.trim();
+
+      document.getElementById("nameError").style.display = "none";
+      document.getElementById("emailError").style.display = "none";
+      document.getElementById("passwordStrength").style.display = "none";
+      document.getElementById("registerError").style.display = "none";
+
+      if (fullName.split(" ").length < 2) {
+        document.getElementById("nameError").style.display = "block";
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        document.getElementById("emailError").style.display = "block";
+        return;
+      }
+
+      if (!validatePassword(password)) {
+        document.getElementById("passwordStrength").style.display = "block";
+        return;
+      }
+
+      if (captchaInput !== currentCaptcha) {
+        alert("Sai mã captcha!");
+        currentCaptcha = generateCaptcha();
+        return;
+      }
+
+      if (role === "GiaoVien" && !teacherImage) {
+        alert("Giáo viên cần tải ảnh xác thực.");
+        return;
+      }
+      if ((role === "Admin" || role === "QuanTriVien") && internalCode === "") {
+        alert("Bạn cần nhập mã số nội bộ.");
+        return;
+      }
+
+      fetch("http://localhost:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, role })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("🎉 Đăng ký thành công!");
+          window.location.href = "index.html";
+        } else {
+          document.getElementById("registerError").innerText = data.message || "Lỗi đăng ký!";
+          document.getElementById("registerError").style.display = "block";
+          currentCaptcha = generateCaptcha();
+        }
+      })
+      .catch(err => {
+        alert("Không thể kết nối đến server!");
+        console.error(err);
+        currentCaptcha = generateCaptcha();
+      });
+    }
+  </script>
+</body>
+</html>
