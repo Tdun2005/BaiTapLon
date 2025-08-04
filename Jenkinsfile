@@ -5,7 +5,7 @@ pipeline {
         SITE_NAME = "QuanLyThietBiSite"
         IIS_PORT = "81"
         SOURCE_PATH = "D:\\BaiTapLon\\QuanLyThietBi\\_frontend"
-        IIS_PATH = "C:\\wwwroot\\QuanLyThietBi"
+        IIS_PATH = "C:\\\\wwwroot\\\\QuanLyThietBi"
     }
 
     stages {
@@ -28,20 +28,9 @@ pipeline {
             steps {
                 echo "🌐 Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
 
-                bat """
-                C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
-                "Import-Module WebAdministration; ^
-                \$siteName = '${SITE_NAME}'; ^
-                \$port = ${IIS_PORT}; ^
-                \$physicalPath = '${IIS_PATH}'; ^
-                if (Test-Path IIS:\\\\Sites\\\\\$siteName) { ^
-                    Write-Output '🌐 Website đã tồn tại. Restart lại...'; ^
-                    Restart-WebItem IIS:\\\\Sites\\\\\$siteName ^
-                } else { ^
-                    Write-Output '🆕 Website chưa tồn tại. Tạo mới...'; ^
-                    New-Website -Name \$siteName -Port \$port -PhysicalPath \$physicalPath ^
-                }"
-                """
+                bat '''
+                C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; $siteName = 'QuanLyThietBiSite'; $port = 81; $physicalPath = 'C:\\\\wwwroot\\\\QuanLyThietBi'; if (Test-Path IIS:\\\\Sites\\\\$siteName) { Write-Output '🌐 Website đã tồn tại. Restart lại...'; Restart-WebItem IIS:\\\\Sites\\\\$siteName } else { Write-Output '🆕 Website chưa tồn tại. Tạo mới...'; New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath }"
+                '''
             }
         }
 
