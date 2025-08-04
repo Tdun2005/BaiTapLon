@@ -29,7 +29,7 @@ pipeline {
                 echo "🌐 Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
 
                 bat """
-                powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
+                C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
                 "Import-Module WebAdministration; ^
                 \$siteName = '${SITE_NAME}'; ^
                 \$port = ${IIS_PORT}; ^
