@@ -3,247 +3,229 @@
 <head>
   <meta charset="UTF-8" />
   <title>Trang chủ - Quản lý thiết bị</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 20px;
+      padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background: linear-gradient(270deg, #e0c3fc, #8ec5fc, #fbc2eb, #fad0c4, #a1c4fd);
       background-size: 1000% 1000%;
-      animation: sparkle 15s ease infinite;
+      animation: sparkle 20s ease infinite;
       color: #333;
+      min-height: 100vh;
+      position: relative;
     }
-
     @keyframes sparkle {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    h1 {
-      text-align: center;
-      color: #222;
-      text-transform: uppercase;
-      font-size: 34px;
-      margin-bottom: 25px;
-      font-weight: bold;
-      text-shadow: 1px 1px 2px #fff;
-    }
-
-    .device-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 25px;
-      background: rgba(255, 255, 255, 0.85);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .device-form input,
-    .device-form select {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      flex: 1;
-      min-width: 160px;
-    }
-
-    .device-form button {
-      padding: 12px 20px;
+    header {
       background: linear-gradient(to right, #00c6ff, #0072ff);
+      padding: 30px 20px;
+      text-align: center;
       color: white;
-      font-weight: bold;
+      font-size: 40px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    nav {
+      background: #ffffffdd;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 25px 15px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+
+    nav button {
+      padding: 16px 30px;
+      font-size: 20px;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
+      font-weight: bold;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    nav button:hover {
+      transform: scale(1.1);
+    }
+
+    .terms, .device-list-container {
+      background: #ffffffdd;
+      padding: 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #444;
+      margin: 30px auto;
+      max-width: 1000px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .logout-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #dc3545;
+      color: white;
+      padding: 16px 22px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.2);
       transition: 0.3s ease;
     }
 
-    .device-form button:hover {
-      transform: scale(1.05);
+    .logout-btn:hover {
+      background: #a71d2a;
     }
 
-    table {
+    #deviceListTable {
       width: 100%;
+      margin-top: 20px;
       border-collapse: collapse;
-      margin-bottom: 30px;
     }
 
-    th, td {
-      border: 1px solid #ddd;
+    #deviceListTable th, #deviceListTable td {
+      border: 1px solid #ccc;
       padding: 12px;
-      text-align: center;
-      font-size: 15px;
+      text-align: left;
     }
 
-    th {
-      background: #ff758c;
+    .export-btn {
+      margin-top: 20px;
+      background: #28a745;
       color: white;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    td {
-      background: #fff;
-    }
-
-    .actions button {
-      margin: 0 5px;
-      padding: 6px 12px;
-      font-weight: bold;
+      padding: 12px 18px;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    .actions .edit-btn {
-      background: #ffc107;
-      color: white;
-    }
-
-    .actions .delete-btn {
-      background: #dc3545;
-      color: white;
-    }
-
-    .terms {
-      background: #fefefe;
-      padding: 15px;
-      border-radius: 12px;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .back-btn {
-      display: inline-block;
-      padding: 12px 20px;
-      background: #6c757d;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-    .back-btn:hover {
-      background: #343a40;
+    .export-btn:hover {
+      background: #218838;
     }
   </style>
 </head>
 <body>
-  <h1>Quản lý thiết bị</h1>
+  <header>Quản lý thiết bị</header>
 
-  <div class="device-form">
-    <input type="text" id="deviceName" placeholder="Tên thiết bị" />
-    <input type="number" id="quantity" placeholder="Số lượng" min="1" />
-    <input type="date" id="addedDate" />
-    <select id="deviceType">
-      <option value="">-- Chọn loại thiết bị --</option>
-      <option>Máy tính</option>
-      <option>Máy chiếu</option>
-      <option>Thiết bị mạng</option>
-      <option>Thiết bị văn phòng</option>
-      <option>Khác</option>
-    </select>
-    <button onclick="addDevice()">Thêm thiết bị</button>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>STT</th>
-        <th>Tên thiết bị</th>
-        <th>Số lượng</th>
-        <th>Loại</th>
-        <th>Ngày thêm</th>
-        <th>Thao tác</th>
-      </tr>
-    </thead>
-    <tbody id="deviceTableBody"></tbody>
-  </table>
+  <nav id="roleActions"></nav>
 
   <div class="terms">
-    <strong>Điều khoản sử dụng:</strong> Hệ thống quản lý thiết bị này được thiết kế phục vụ việc theo dõi, thống kê và kiểm kê tài sản công của nhà trường. Mọi hành vi gian lận hoặc sử dụng sai mục đích đều bị nghiêm cấm.
+    <strong>Điều khoản sử dụng:</strong> Hệ thống quản lý thiết bị này được thiết kế phục vụ việc theo dõi, thống kê và kiểm kê tài sản công của nhà trường.
+    <br>Mọi hành vi gian lận hoặc sử dụng sai mục đích đều bị nghiêm cấm.
   </div>
 
-  <a href="index.html" class="back-btn">← Quay lại đăng nhập</a>
+  <div class="device-list-container" id="deviceListContainer">
+    <h2>📋 Danh sách thiết bị đã thêm</h2>
+    <table id="deviceListTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên</th>
+          <th>Loại</th>
+          <th>Tình trạng</th>
+          <th>Ngày thêm</th>
+          <th>Miêu tả</th>
+        </tr>
+      </thead>
+      <tbody id="deviceListBody"></tbody>
+    </table>
+    <button class="export-btn" onclick="exportToPDF()">📄 Xuất PDF</button>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Đăng xuất</button>
 
   <script>
-    let devices = [];
+    const userRole = localStorage.getItem('loggedInRole');
 
-    function renderDevices() {
-      const tbody = document.getElementById("deviceTableBody");
-      tbody.innerHTML = "";
+    const roleActions = {
+      "GiaoVien": [
+        { text: "Xem danh sách thiết bị", link: "xem-danh-sach-thiet-bi.html" },
+        { text: "Gửi yêu cầu mượn thiết bị", link: "gui-yeu-cau.html" },
+        { text: "Báo cáo sự cố thiết bị", link: "bao-cao.html" }
+      ],
+      "QuanTriVien": [
+        { text: "Duyệt yêu cầu mượn thiết bị", link: "duyet-yeu-cau.html" },
+        { text: "Quản lý thiết bị", link: "quan-ly-thiet-bi.html" }
+      ],
+      "Admin": [
+        { text: "Thêm thiết bị", link: "them-thiet-bi.html" },
+        { text: "Sửa thiết bị", link: "sua-thiet-bi.html" },
+        { text: "Xóa thiết bị", link: "xoa-thiet-bi.html" },
+        { text: "Phân loại thiết bị", link: "phan-loai-thiet-bi.html" }
+      ]
+    };
 
-      devices.forEach((device, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${device.name}</td>
-          <td>${device.quantity}</td>
-          <td>${device.type}</td>
-          <td>${device.date}</td>
-          <td class="actions">
-            <button class="edit-btn" onclick="editDevice(${index})">Sửa</button>
-            <button class="delete-btn" onclick="deleteDevice(${index})">Xóa</button>
-          </td>
-        `;
-        tbody.appendChild(row);
+    const container = document.getElementById("roleActions");
+    if (userRole && roleActions[userRole]) {
+      roleActions[userRole].forEach(action => {
+        const btn = document.createElement("button");
+        btn.textContent = action.text;
+        btn.onclick = () => window.location.href = action.link;
+        container.appendChild(btn);
       });
+    } else {
+      container.innerHTML = "<p>Không xác định vai trò người dùng.</p>";
     }
 
-    function addDevice() {
-      const name = document.getElementById("deviceName").value.trim();
-      const quantity = parseInt(document.getElementById("quantity").value.trim());
-      const date = document.getElementById("addedDate").value;
-      const type = document.getElementById("deviceType").value;
-
-      if (!name || isNaN(quantity) || quantity < 1 || !date || !type) {
-        alert("Vui lòng điền đầy đủ và hợp lệ tất cả các trường.");
-        return;
-      }
-
-      devices.push({ name, quantity, date, type });
-      document.getElementById("deviceName").value = "";
-      document.getElementById("quantity").value = "";
-      document.getElementById("addedDate").value = "";
-      document.getElementById("deviceType").value = "";
-      renderDevices();
+    function logout() {
+      localStorage.removeItem('loggedInRole');
+      window.location.href = "index.html";
     }
 
-    function editDevice(index) {
-      const device = devices[index];
-      const newName = prompt("Tên mới của thiết bị:", device.name);
-      const newQty = prompt("Số lượng mới:", device.quantity);
-      const newType = prompt("Loại thiết bị mới:", device.type);
-      const newDate = prompt("Ngày thêm mới (yyyy-mm-dd):", device.date);
+    async function loadDevices() {
+      try {
+        const res = await fetch('http://localhost:2704/api/devices');
+        const result = await res.json();
 
-      if (newName && !isNaN(parseInt(newQty)) && newType && newDate) {
-        devices[index] = {
-          name: newName.trim(),
-          quantity: parseInt(newQty),
-          type: newType.trim(),
-          date: newDate
-        };
-        renderDevices();
-      } else {
-        alert("Thông tin không hợp lệ!");
-      }
-    }
+        if (!result.success || !Array.isArray(result.data)) {
+          throw new Error("Dữ liệu trả về không hợp lệ");
+        }
 
-    function deleteDevice(index) {
-      if (confirm("Bạn có chắc chắn muốn xóa thiết bị này không?")) {
-        devices.splice(index, 1);
-        renderDevices();
+        const devices = result.data;
+        const tbody = document.getElementById("deviceListBody");
+        tbody.innerHTML = "";
+
+        devices.forEach((device) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${typeof device.id !== 'undefined' ? device.id : 'Không có ID'}</td>
+            <td>${device.name || ''}</td>
+            <td>${device.type || ''}</td>
+            <td>${device.status || ''}</td>
+            <td>${device.date || ''}</td>
+            <td>${device.desc || ''}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Không tải được danh sách thiết bị:", error);
+        alert("❌ Không kết nối được API hoặc dữ liệu sai định dạng.");
       }
     }
 
-    renderDevices();
+    function exportToPDF() {
+      const element = document.getElementById("deviceListContainer");
+      html2pdf().from(element).save("DanhSachThietBi.pdf");
+    }
+
+    loadDevices();
   </script>
 </body>
 </html>

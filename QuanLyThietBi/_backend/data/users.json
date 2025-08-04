@@ -1,6 +1,21 @@
 [
   {
-    "username": "toilatungduong",
+    "username": "hongnhung",
+    "password": "123456bA@",
+    "role": "QuanTriVien"
+  },
+  {
+    "username": "nguyenbach123",
+    "password": "123456bA@",
+    "role": "Admin"
+  },
+  {
+    "username": "ducanh123",
+    "password": "123456bA@",
+    "role": "QuanTriVien"
+  },
+  {
+    "username": "ducanh1234",
     "password": "123456bA@",
     "role": "GiaoVien"
   }

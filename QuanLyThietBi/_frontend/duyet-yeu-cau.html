@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Duyệt yêu cầu mượn thiết bị</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      color: #333;
+    }
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    label {
+      font-size: 20px;
+      font-weight: bold;
+      display: block;
+      margin: 25px 0 10px;
+    }
+    select {
+      width: 100%;
+      font-size: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .info-box {
+      background: #ffffffee;
+      padding: 30px;
+      margin-top: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .info-box h3 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #0072ff;
+    }
+    .info-box p {
+      margin: 12px 0;
+    }
+    .btn {
+      font-size: 18px;
+      padding: 14px 26px;
+      border-radius: 10px;
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      color: white;
+      font-weight: bold;
+      border: none;
+      margin-right: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .btn:hover {
+      transform: scale(1.06);
+    }
+    .back-btn {
+      background: #6c757d;
+    }
+    .back-btn:hover {
+      background: #5a6268;
+    }
+    #result {
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Duyệt yêu cầu mượn thiết bị</h1>
+
+  <label for="requestSelect">📄 Chọn đơn mượn thiết bị:</label>
+  <select id="requestSelect">
+    <option value="">-- Vui lòng chọn ID đơn mượn cần duyệt --</option>
+  </select>
+
+  <div class="info-box" id="requestInfo" style="display:none;">
+    <h3>🔍 Thông tin chi tiết đơn mượn:</h3>
+    <p><strong>📌 Thiết bị:</strong> <span id="deviceName"></span></p>
+    <p><strong>👤 Người mượn:</strong> <span id="borrowerName"></span></p>
+    <p><strong>📅 Số ngày mượn:</strong> <span id="days"></span></p>
+    <p><strong>📝 Lý do mượn:</strong> <span id="reason"></span></p>
+    <p><strong>✍️ Ký tên:</strong> <span id="signature"></span></p>
+    <p><strong>⏱️ Gửi lúc:</strong> <span id="submittedAt"></span></p>
+
+    <h3>✅ Bạn có duyệt đơn này không?</h3>
+    <button class="btn" onclick="approveRequest(true)">✔️ Duyệt đơn</button>
+    <button class="btn" onclick="approveRequest(false)">❌ Từ chối</button>
+
+    <div id="result"></div>
+  </div>
+
+  <button class="btn back-btn" onclick="window.location.href='dashboard.html'">⬅️ Quay lại trang chính</button>
+
+  <script>
+    let requests = [];
+
+    async function loadBorrowRequests() {
+      try {
+        const res = await fetch("http://localhost:2704/data/borrow_requests.json");
+        const data = await res.json();
+        requests = data;
+
+        const select = document.getElementById("requestSelect");
+        select.innerHTML = '<option value="">-- Vui lòng chọn ID đơn mượn cần duyệt --</option>';
+        data.forEach(req => {
+          const option = document.createElement("option");
+          option.value = req.id;
+          option.textContent = `🆔 ID: ${req.id} - ${req.deviceName}`;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        alert("❌ Không thể tải danh sách đơn mượn thiết bị.");
+        console.error(err);
+      }
+    }
+
+    document.getElementById("requestSelect").addEventListener("change", function () {
+      const selectedId = parseInt(this.value);
+      const req = requests.find(r => r.id === selectedId);
+
+      if (!req) return;
+
+      document.getElementById("deviceName").textContent = req.deviceName;
+      document.getElementById("borrowerName").textContent = req.borrowerName;
+      document.getElementById("days").textContent = req.days + " ngày";
+      document.getElementById("reason").textContent = req.reason;
+      document.getElementById("signature").textContent = req.signature;
+      document.getElementById("submittedAt").textContent = req.submittedAt;
+      document.getElementById("requestInfo").style.display = "block";
+      document.getElementById("result").textContent = "";
+    });
+
+    async function approveRequest(approved) {
+      const select = document.getElementById("requestSelect");
+      const selectedId = parseInt(select.value);
+      if (!selectedId) return;
+
+      const resultBox = document.getElementById("result");
+      try {
+        const res = await fetch("http://localhost:2704/api/borrow/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: selectedId })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          resultBox.style.color = approved ? "#28a745" : "#dc3545";
+          resultBox.style.background = approved ? "#e8f5e9" : "#fdecea";
+          resultBox.textContent = approved
+            ? "✅ Bạn đã duyệt đơn mượn thiết bị thành công!"
+            : "❌ Đơn mượn thiết bị đã bị từ chối!";
+          await loadBorrowRequests();
+          document.getElementById("requestInfo").style.display = "none";
+        } else {
+          resultBox.style.color = "#dc3545";
+          resultBox.textContent = "❌ Có lỗi xảy ra khi xử lý đơn.";
+        }
+      } catch (err) {
+        resultBox.style.color = "#dc3545";
+        resultBox.textContent = "❌ Không thể kết nối tới máy chủ.";
+        console.error(err);
+      }
+    }
+
+    loadBorrowRequests();
+  </script>
+</body>
+</html>

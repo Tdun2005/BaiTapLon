@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thêm thiết bị - Quản lý thiết bị</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 34px;
+      margin-bottom: 35px;
+      color: #222;
+    }
+
+    form {
+      max-width: 750px;
+      margin: 0 auto;
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .buttons {
+      margin-top: 35px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .buttons button, .buttons a {
+      flex: 1;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 10px;
+      border: none;
+      text-align: center;
+      text-decoration: none;
+      transition: 0.3s ease;
+    }
+
+    .add-btn {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+    }
+
+    .add-btn:hover {
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+    }
+
+    .back-btn {
+      background: #6c757d;
+      color: white;
+    }
+
+    .back-btn:hover {
+      background: #343a40;
+    }
+
+    #customStatus, #customType {
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Thêm thiết bị</h1>
+  <form id="addDeviceForm">
+
+    <label for="deviceId">ID thiết bị</label>
+    <input type="number" id="deviceId" min="1" required placeholder="VD: 1, 2, 3...">
+
+    <label for="deviceName">Tên thiết bị</label>
+    <input type="text" id="deviceName" required placeholder="Nhập tên thiết bị">
+
+    <label for="deviceType">Loại thiết bị</label>
+    <select id="deviceType" onchange="handleTypeChange()" required>
+      <option value="">-- Chọn loại thiết bị --</option>
+      <option>Máy tính</option>
+      <option>Máy chiếu</option>
+      <option>TV thông minh</option>
+      <option>Bảng tương tác</option>
+      <option>Router WiFi</option>
+      <option>Camera giám sát</option>
+      <option>Máy in</option>
+      <option>Khác</option>
+    </select>
+    <input type="text" id="customType" placeholder="Nhập loại thiết bị cụ thể...">
+
+    <label for="deviceStatus">Tình trạng thiết bị</label>
+    <select id="deviceStatus" onchange="handleStatusChange()" required>
+      <option value="">-- Chọn tình trạng --</option>
+      <option>Mới</option>
+      <option>Cũ</option>
+      <option>Khác</option>
+    </select>
+    <input type="text" id="customStatus" placeholder="Nhập tình trạng khác...">
+
+    <label for="addedDate">Ngày thêm</label>
+    <input type="date" id="addedDate" required>
+
+    <label for="description">Miêu tả</label>
+    <textarea id="description" placeholder="Nhập miêu tả chi tiết..."></textarea>
+
+    <div class="buttons">
+      <button type="submit" class="add-btn">Thêm thiết bị</button>
+      <a href="dashboard.html" class="back-btn">← Quay lại</a>
+    </div>
+  </form>
+
+  <script>
+    function handleStatusChange() {
+      const status = document.getElementById('deviceStatus').value;
+      const customStatus = document.getElementById('customStatus');
+      customStatus.style.display = (status === 'Khác') ? 'block' : 'none';
+    }
+
+    function handleTypeChange() {
+      const type = document.getElementById('deviceType').value;
+      const customType = document.getElementById('customType');
+      customType.style.display = (type === 'Khác') ? 'block' : 'none';
+    }
+
+    document.getElementById('addDeviceForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const id = parseInt(document.getElementById('deviceId').value);
+      const name = document.getElementById('deviceName').value.trim();
+      let type = document.getElementById('deviceType').value;
+      if (type === 'Khác') {
+        type = document.getElementById('customType').value.trim();
+      }
+
+      let status = document.getElementById('deviceStatus').value;
+      if (status === 'Khác') {
+        status = document.getElementById('customStatus').value.trim();
+      }
+
+      const date = document.getElementById('addedDate').value;
+      const desc = document.getElementById('description').value.trim();
+
+      if (!id || !name || !type || !status || !date) {
+        alert("⚠️ Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      const newDevice = { id, name, type, status, date, desc };
+
+      try {
+        const res = await fetch('http://localhost:2704/api/devices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newDevice)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert("🎉 Thêm thiết bị thành công!");
+          this.reset();
+          document.getElementById('customStatus').style.display = 'none';
+          document.getElementById('customType').style.display = 'none';
+        } else {
+          alert("❌ Lỗi: " + data.message);
+        }
+      } catch (err) {
+        console.error("Lỗi gọi API:", err);
+        alert("🚫 Không thể kết nối tới server.");
+      }
+    });
+  </script>
+</body>
+</html>

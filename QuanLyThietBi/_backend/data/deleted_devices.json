@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "name": "Máy súc miệng",
+    "type": "Camera giám sát",
+    "status": "Mới",
+    "date": "2025-08-01",
+    "desc": "he hi hu",
+    "deletedAt": "19:29:26 4/8/2025"
+  },
+  {
+    "id": 1,
+    "name": "Máy chiếu phát sáng",
+    "type": "Máy chiếu",
+    "status": "Mới",
+    "date": "2025-08-01",
+    "desc": "hẹ hị",
+    "deletedAt": "19:30:59 4/8/2025"
+  },
+  {
+    "id": 1,
+    "name": "Máy in tài liệu A720",
+    "type": "Máy in",
+    "status": "Mới",
+    "date": "2025-08-05",
+    "desc": "máy in còn mới",
+    "deletedAt": "21:47:40 4/8/2025"
+  },
+  {
+    "id": 2,
+    "name": "Máy chiếu Express 23Ex",
+    "type": "Máy chiếu",
+    "status": "Được chuyển giao",
+    "date": "2025-08-07",
+    "desc": "máy chiếu tốt",
+    "deletedAt": "01:49:57 5/8/2025"
+  },
+  {
+    "id": 1,
+    "name": "Máy chiếu phản quang",
+    "type": "TV thông minh",
+    "status": "Mới",
+    "date": "2025-08-01",
+    "desc": "sử dụng Vật Lý",
+    "deletedAt": "01:49:57 5/8/2025"
+  },
+  {
+    "id": 3,
+    "name": "Bút chấm đọc VietAnhNgu",
+    "type": "Khác",
+    "status": "Đang sử dụng",
+    "date": "2025-08-02",
+    "desc": "Bút sử dụng thông minh",
+    "deletedAt": "01:49:57 5/8/2025"
+  }
+]

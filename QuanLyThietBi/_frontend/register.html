@@ -8,16 +8,18 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      padding: 0;
+      min-height: 100vh;
+      overflow: auto;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
       background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
       background-size: 800% 800%;
       animation: sparkle 12s ease infinite;
-      font-family: 'Segoe UI', sans-serif;
     }
 
     @keyframes sparkle {
@@ -26,12 +28,19 @@
       100% { background-position: 0% 50%; }
     }
 
+    .scroll-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+
     .register-container {
       background: white;
       padding: 40px 50px;
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      width: 520px;
+      width: 100%;
+      max-width: 680px;
       animation: fadeIn 1.2s ease;
     }
 
@@ -40,11 +49,21 @@
       to { opacity: 1; transform: scale(1); }
     }
 
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: #222;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #fff;
+    }
+
     h2 {
       text-align: center;
       text-transform: uppercase;
       margin-bottom: 25px;
-      font-size: 28px;
+      font-size: 34px;
       color: #333;
       font-weight: 900;
       background: linear-gradient(to right, #ff416c, #ff4b2b, #fcb045, #00c9ff);
@@ -61,11 +80,11 @@
 
     input, select {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       margin: 10px 0;
       border-radius: 10px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      font-size: 20px;
       transition: 0.3s;
     }
 
@@ -101,13 +120,13 @@
 
     button {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       margin-top: 20px;
       background: linear-gradient(to right, #00c6ff, #0072ff);
       border: none;
       color: white;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 20px;
       border-radius: 12px;
       cursor: pointer;
       transition: 0.3s;
@@ -118,66 +137,79 @@
       opacity: 0.95;
     }
 
+    .back-button {
+      margin-top: 10px;
+      background: linear-gradient(to right, #f46b45, #eea849);
+    }
+
     #registerError {
       text-align: center;
       margin-top: 10px;
     }
   </style>
 </head>
+<!-- (Toàn bộ phần <head> và CSS giữ nguyên như bạn gửi, không thay đổi) -->
+
+<!-- BẮT ĐẦU phần <body> -->
 <body>
-  <div class="register-container">
-    <h2>Đăng ký tài khoản</h2>
+  <div class="scroll-wrapper">
+    <div class="register-container">
+      <h1>Đăng ký tài khoản</h1>
+      <h2>Form thông tin người dùng</h2>
 
-    <input type="text" id="fullName" placeholder="Họ và tên">
-    <div id="nameError" class="validation">Họ tên cần ít nhất 2 chữ.</div>
+      <input type="text" id="fullName" placeholder="Họ và tên">
+      <div id="nameError" class="validation">Họ tên cần ít nhất 2 chữ.</div>
 
-    <input type="text" id="email" placeholder="Email">
-    <div id="emailError" class="validation">Email không hợp lệ.</div>
+      <input type="text" id="email" placeholder="Email">
+      <div id="emailError" class="validation">Email không hợp lệ.</div>
 
-    <label for="birthday">Ngày sinh:</label>
-    <input type="date" id="birthday">
+      <label for="birthday">Ngày sinh:</label>
+      <input type="date" id="birthday">
+      <div id="ageError" class="validation">Bạn phải đủ 18 tuổi để đăng ký.</div>
 
-    <label for="gender">Giới tính:</label>
-    <select id="gender">
-      <option>Nam</option>
-      <option>Nữ</option>
-      <option>Khác</option>
-    </select>
+      <label for="gender">Giới tính:</label>
+      <select id="gender">
+        <option>Nam</option>
+        <option>Nữ</option>
+        <option>Khác</option>
+      </select>
 
-    <label for="province">Quê quán:</label>
-    <select id="province">
-      <option value="">-- Chọn tỉnh thành --</option>
-      <option>Hà Nội</option>
-      <option>TP. Hồ Chí Minh</option>
-      <option>Đà Nẵng</option>
-      <option>Cần Thơ</option>
-      <option>Hải Phòng</option>
-      <option>Huế</option>
-      <option>Khác</option>
-    </select>
+      <label for="province">Quê quán:</label>
+      <select id="province">
+        <option value="">-- Chọn tỉnh thành --</option>
+        <option>Hà Nội</option>
+        <option>TP. Hồ Chí Minh</option>
+        <option>Đà Nẵng</option>
+        <option>Cần Thơ</option>
+        <option>Hải Phòng</option>
+        <option>Huế</option>
+        <option>Khác</option>
+      </select>
 
-    <label for="role">Vai trò:</label>
-    <select id="role" onchange="handleRoleChange()">
-      <option value="GiaoVien">Giáo viên</option>
-      <option value="Admin">Admin</option>
-      <option value="QuanTriVien">Quản trị viên</option>
-    </select>
+      <label for="role">Vai trò:</label>
+      <select id="role" onchange="handleRoleChange()">
+        <option value="GiaoVien">Giáo viên</option>
+        <option value="Admin">Admin</option>
+        <option value="QuanTriVien">Quản trị viên</option>
+      </select>
 
-    <input type="file" id="teacherImage" style="display: none;">
-    <input type="text" id="internalCode" placeholder="Nhập mã số nội bộ" style="display: none;">
+      <input type="file" id="teacherImage" style="display: none;">
+      <input type="text" id="internalCode" placeholder="Nhập mã số nội bộ" style="display: none;">
 
-    <input type="text" id="newUsername" placeholder="Tên đăng nhập">
-    <input type="password" id="newPassword" placeholder="Mật khẩu">
-    <div id="passwordStrength" class="validation">Mật khẩu phải có ít nhất 6 ký tự, gồm cả chữ hoa, chữ thường và số.</div>
+      <input type="text" id="newUsername" placeholder="Tên đăng nhập">
+      <input type="password" id="newPassword" placeholder="Mật khẩu">
+      <div id="passwordStrength" class="validation">Mật khẩu phải có ít nhất 6 ký tự, gồm cả chữ hoa, chữ thường và số.</div>
 
-    <div class="captcha-box">
-      <div class="captcha-code" id="captchaCode">12345</div>
-      <input type="text" id="captchaInput" placeholder="Nhập mã xác thực">
+      <div class="captcha-box">
+        <div class="captcha-code" id="captchaCode">12345</div>
+        <input type="text" id="captchaInput" placeholder="Nhập mã xác thực">
+      </div>
+
+      <div id="registerError" class="validation">Tên đăng nhập đã tồn tại.</div>
+
+      <button onclick="register()">Đăng ký</button>
+      <button onclick="window.location.href='index.html'" class="back-button">Quay lại đăng nhập</button>
     </div>
-
-    <div id="registerError" class="validation">Tên đăng nhập đã tồn tại.</div>
-
-    <button onclick="register()">Đăng ký</button>
   </div>
 
   <script>
@@ -204,12 +236,21 @@
       return pw.length >= 6 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /\d/.test(pw);
     }
 
+    function isOver18(birthdayStr) {
+      const birthday = new Date(birthdayStr);
+      const today = new Date();
+      const age = today.getFullYear() - birthday.getFullYear();
+      const m = today.getMonth() - birthday.getMonth();
+      return (age > 18 || (age === 18 && m >= 0));
+    }
+
     function register() {
       const fullName = document.getElementById("fullName").value.trim();
       const email = document.getElementById("email").value.trim();
       const username = document.getElementById("newUsername").value.trim();
       const password = document.getElementById("newPassword").value;
       const role = document.getElementById("role").value;
+      const birthday = document.getElementById("birthday").value;
       const internalCode = document.getElementById("internalCode").value.trim();
       const teacherImage = document.getElementById("teacherImage").files[0];
       const captchaInput = document.getElementById("captchaInput").value.trim();
@@ -218,6 +259,7 @@
       document.getElementById("emailError").style.display = "none";
       document.getElementById("passwordStrength").style.display = "none";
       document.getElementById("registerError").style.display = "none";
+      document.getElementById("ageError").style.display = "none";
 
       if (fullName.split(" ").length < 2) {
         document.getElementById("nameError").style.display = "block";
@@ -226,6 +268,11 @@
 
       if (!validateEmail(email)) {
         document.getElementById("emailError").style.display = "block";
+        return;
+      }
+
+      if (!birthday || !isOver18(birthday)) {
+        document.getElementById("ageError").style.display = "block";
         return;
       }
 
@@ -244,12 +291,13 @@
         alert("Giáo viên cần tải ảnh xác thực.");
         return;
       }
+
       if ((role === "Admin" || role === "QuanTriVien") && internalCode === "") {
         alert("Bạn cần nhập mã số nội bộ.");
         return;
       }
 
-      fetch("http://localhost:3000/api/register", {
+      fetch("http://localhost:2704/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, role })
@@ -274,3 +322,4 @@
   </script>
 </body>
 </html>
+

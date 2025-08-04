@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Sửa thiết bị - Quản lý thiết bị</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      color: #333;
+      min-height: 100vh;
+    }
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 750px;
+      margin: auto;
+      background: white;
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 32px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 14px;
+      display: block;
+      font-size: 18px;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 16px 18px;
+      margin: 12px 0 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      padding: 16px;
+      margin-top: 25px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .back-btn {
+      margin-top: 15px;
+      background: #6c757d;
+    }
+
+    .back-btn:hover {
+      background: #343a40;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sửa thông tin thiết bị</h2>
+
+    <label for="deviceSelect">Chọn thiết bị cần sửa:</label>
+    <select id="deviceSelect">
+      <option value="">-- Chọn thiết bị --</option>
+    </select>
+
+    <label for="status">Tình trạng mới:</label>
+    <select id="status">
+      <option value="Mới">Mới</option>
+      <option value="Cũ">Cũ</option>
+      <option value="Khác">Khác</option>
+    </select>
+    <input type="text" id="statusOther" placeholder="Nếu khác, hãy nhập tình trạng cụ thể" style="display: none;">
+
+    <label for="updateDate">Cập nhật ngày thêm:</label>
+    <input type="date" id="updateDate">
+
+    <label for="desc">Mô tả khác:</label>
+    <textarea id="desc" rows="4" placeholder="Nhập mô tả chi tiết..."></textarea>
+
+    <button onclick="submitEdit()">Sửa thiết bị</button>
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">← Quay lại</button>
+  </div>
+
+  <script>
+    const deviceSelect = document.getElementById("deviceSelect");
+    const status = document.getElementById("status");
+    const statusOther = document.getElementById("statusOther");
+    const updateDate = document.getElementById("updateDate");
+    const desc = document.getElementById("desc");
+
+    const deviceMap = {};
+
+    status.addEventListener('change', () => {
+      statusOther.style.display = status.value === 'Khác' ? 'block' : 'none';
+    });
+
+    deviceSelect.addEventListener('change', () => {
+      const id = deviceSelect.value;
+      const device = deviceMap[id];
+      if (!device) return;
+
+      updateDate.value = device.date || '';
+      desc.value = device.desc || '';
+
+      if (["Mới", "Cũ"].includes(device.status)) {
+        status.value = device.status;
+        statusOther.style.display = "none";
+        statusOther.value = "";
+      } else {
+        status.value = "Khác";
+        statusOther.style.display = "block";
+        statusOther.value = device.status || "";
+      }
+    });
+
+    async function loadDevices() {
+      try {
+        const res = await fetch('http://localhost:2704/api/devices');
+        const json = await res.json();
+        if (!json.success || !Array.isArray(json.data)) throw new Error();
+
+        json.data.forEach(device => {
+          if (!device.id) return;
+          deviceMap[device.id] = device;
+
+          const option = document.createElement('option');
+          option.value = device.id;
+          option.textContent = `ID ${device.id} - ${device.name} (${device.type})`;
+          deviceSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("loadDevices error:", err);
+        alert("❌ Không thể tải danh sách thiết bị.");
+      }
+    }
+
+    async function submitEdit() {
+      const id = deviceSelect.value;
+      if (!id || !deviceMap[id]) return alert("Chọn thiết bị hợp lệ.");
+
+      let newStatus = status.value;
+      if (newStatus === 'Khác') {
+        newStatus = statusOther.value.trim();
+        if (!newStatus) return alert("Nhập tình trạng cụ thể.");
+      }
+
+      const newDate = updateDate.value;
+      if (!newDate) return alert("Chọn ngày thêm.");
+
+      const newDesc = desc.value.trim();
+
+      if (!confirm("Xác nhận sửa thiết bị?")) return;
+
+      try {
+        const res = await fetch(`http://localhost:2704/api/devices/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus, date: newDate, desc: newDesc })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("✅ Cập nhật thành công!");
+          window.location.href = "dashboard.html";
+        } else {
+          throw new Error(result.message || "Cập nhật thất bại");
+        }
+      } catch (err) {
+        console.error("submitEdit error:", err);
+        alert("❌ Không thể kết nối tới server.");
+      }
+    }
+
+    loadDevices();
+  </script>
+</body>
+</html>

@@ -4,16 +4,15 @@
   <meta charset="UTF-8">
   <title>Đăng nhập - Quản lý thiết bị</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a6c1ee);
+      background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
       background-size: 1000% 1000%;
       animation: sparkle 15s ease infinite;
       font-family: 'Segoe UI', sans-serif;
@@ -27,10 +26,11 @@
 
     .login-container {
       background: white;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 6px 30px rgba(0,0,0,0.25);
-      width: 400px;
+      padding: 40px 50px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 680px;
       text-align: center;
       animation: fadeIn 1s ease;
     }
@@ -42,19 +42,36 @@
 
     h2 {
       margin-bottom: 25px;
-      color: #333;
+      font-size: 38px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      color: #333;
+      font-weight: 900;
+      background: linear-gradient(to right, #ff416c, #ff4b2b, #fcb045, #00c9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       margin: 10px 0;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
+      border-radius: 10px;
+      font-size: 20px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #00c6ff;
+      box-shadow: 0 0 5px #00c6ff;
     }
 
     .captcha-box {
@@ -66,20 +83,27 @@
 
     .captcha-code {
       font-weight: bold;
+      font-size: 22px;
+      background: #eee;
+      padding: 10px 24px;
+      border-radius: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    .captcha-box input {
+      width: calc(100% - 150px);
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
       font-size: 20px;
-      background: #f2f2f2;
-      padding: 10px 20px;
-      border-radius: 8px;
-      letter-spacing: 3px;
     }
 
     .actions-box {
       display: flex;
-      justify-content: space-around;
-      background: #f1f1f1;
-      padding: 10px;
-      border-radius: 8px;
+      justify-content: space-between;
       margin-top: 15px;
+      font-size: 16px;
     }
 
     .actions-box a {
@@ -94,20 +118,20 @@
 
     button {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       margin-top: 20px;
       background: linear-gradient(to right, #00c6ff, #0072ff);
       border: none;
       color: white;
       font-weight: bold;
-      border-radius: 10px;
+      font-size: 20px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 18px;
-      transition: 0.3s ease;
+      transition: 0.3s;
     }
 
     button:hover {
-      transform: scale(1.03);
+      transform: scale(1.05);
       opacity: 0.95;
     }
   </style>
@@ -115,6 +139,7 @@
 <body>
   <div class="login-container">
     <h2>Đăng nhập</h2>
+
     <input type="text" id="username" placeholder="Tên đăng nhập">
     <input type="password" id="password" placeholder="Mật khẩu">
 
@@ -139,7 +164,11 @@
       return number.toString();
     }
 
-    let currentCaptcha = generateCaptcha();
+    let currentCaptcha = "";
+
+    window.onload = function () {
+      currentCaptcha = generateCaptcha();
+    };
 
     function login() {
       const username = document.getElementById("username").value.trim();
@@ -157,17 +186,15 @@
         return;
       }
 
-      // Gửi yêu cầu API tới backend để kiểm tra đăng nhập
-      fetch("http://localhost:3000/api/login", {
+      fetch("http://localhost:2704/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
+          localStorage.setItem("loggedInRole", data.role);
           alert("Đăng nhập thành công!");
           window.location.href = "dashboard.html";
         } else {

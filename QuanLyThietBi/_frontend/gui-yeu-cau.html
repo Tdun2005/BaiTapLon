@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gửi yêu cầu mượn thiết bị</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background-size: 1000% 1000%;
+      animation: sparkle 15s ease infinite;
+      color: #333;
+    }
+    @keyframes sparkle {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      padding: 20px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    form {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #ffffffee;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    select, input[type="text"], input[type="range"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input[type="range"] {
+      accent-color: #007bff;
+    }
+    output {
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .checkbox input {
+      margin-right: 10px;
+    }
+    button {
+      padding: 14px 24px;
+      font-size: 16px;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 15px;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .back-btn {
+      background: #6c757d;
+    }
+    .back-btn:hover {
+      background: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gửi yêu cầu mượn thiết bị</h1>
+  <form id="borrowForm">
+    <label for="deviceSelect">Chọn thiết bị cần mượn:</label>
+    <select id="deviceSelect" required>
+      <option value="">-- Vui lòng chọn thiết bị --</option>
+    </select>
+
+    <label for="borrowDate">Ngày mượn (tối đa 30 ngày): <output id="borrowDaysOutput">1</output> ngày</label>
+    <input type="range" id="borrowDate" min="1" max="30" value="1" oninput="borrowDaysOutput.value = this.value">
+
+    <label for="borrowerName">Người mượn:</label>
+    <input type="text" id="borrowerName" required placeholder="Nhập họ tên người mượn">
+
+    <label for="reason">Lý do mượn:</label>
+    <textarea id="reason" rows="4" required placeholder="Nhập lý do mượn thiết bị..."></textarea>
+
+    <label for="signature">Ký tên:</label>
+    <input type="text" id="signature" required placeholder="Nhập tên ký xác nhận">
+
+    <div class="checkbox">
+      <input type="checkbox" id="confirm" required>
+      <label for="confirm">Xác nhận hoàn tất quá trình mượn thiết bị</label>
+    </div>
+
+    <button type="submit">📩 Gửi yêu cầu</button>
+    <button type="button" class="back-btn" onclick="goBack()">⬅️ Quay lại</button>
+  </form>
+
+  <script>
+    async function loadAvailableDevices() {
+      try {
+        const res = await fetch('http://localhost:2704/api/devices');
+        const data = await res.json();
+
+        if (!data.success || !Array.isArray(data.data)) {
+          throw new Error("Dữ liệu không hợp lệ");
+        }
+
+        const deviceSelect = document.getElementById('deviceSelect');
+        let hasDevice = false;
+
+        data.data.forEach(device => {
+          // Hiển thị tất cả thiết bị KHÔNG phải "Đang mượn"
+          if (!device.status || device.status.toLowerCase() !== 'đang mượn') {
+            const option = document.createElement('option');
+            option.value = device.id;
+            option.textContent = `${device.name} (${device.type}) - ${device.status}`;
+            deviceSelect.appendChild(option);
+            hasDevice = true;
+          }
+        });
+
+        if (!hasDevice) {
+          const option = document.createElement('option');
+          option.textContent = "Không có thiết bị khả dụng";
+          option.disabled = true;
+          deviceSelect.appendChild(option);
+        }
+
+      } catch (err) {
+        alert("❌ Không tải được danh sách thiết bị!");
+        console.error(err);
+      }
+    }
+
+    document.getElementById('borrowForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const deviceId = document.getElementById('deviceSelect').value;
+      const days = document.getElementById('borrowDate').value;
+      const borrowerName = document.getElementById('borrowerName').value.trim();
+      const reason = document.getElementById('reason').value.trim();
+      const signature = document.getElementById('signature').value.trim();
+      const confirmed = document.getElementById('confirm').checked;
+
+      if (!deviceId || !borrowerName || !reason || !signature || !confirmed) {
+        alert("⚠️ Vui lòng điền đầy đủ thông tin và xác nhận trước khi gửi.");
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:2704/api/borrow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deviceId,
+            borrowerName,
+            days: parseInt(days),
+            reason,
+            signature
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("✅ Gửi đơn mượn thiết bị thành công!");
+          document.getElementById('borrowForm').reset();
+          document.getElementById('borrowDaysOutput').value = 1;
+        } else {
+          alert("❌ Gửi yêu cầu thất bại: " + result.message);
+        }
+      } catch (err) {
+        alert("❌ Không thể gửi yêu cầu. Vui lòng thử lại.");
+        console.error(err);
+      }
+    });
+
+    function goBack() {
+      window.location.href = "dashboard.html";
+    }
+
+    loadAvailableDevices();
+  </script>
+</body>
+</html>
