@@ -5,38 +5,67 @@ pipeline {
         SITE_NAME = "QuanLyThietBiSite"
         IIS_PORT = "81"
         SOURCE_PATH = "D:\\BaiTapLon\\QuanLyThietBi\\_frontend"
-        IIS_PATH = "C:\\\\wwwroot\\\\QuanLyThietBi"
+        IIS_PATH = "C:\\wwwroot\\QuanLyThietBi"
     }
 
     stages {
         stage('🧹 Clean Old Deploy Folder') {
             steps {
                 echo '🧹 Xoá nội dung cũ trong thư mục IIS...'
-                bat 'rmdir /S /Q "%IIS_PATH%"'
-                bat 'mkdir "%IIS_PATH%"'
+                bat '''
+                if exist "%IIS_PATH%" (
+                    rmdir /S /Q "%IIS_PATH%"
+                )
+                mkdir "%IIS_PATH%"
+                '''
             }
         }
 
         stage('📂 Copy Static Web to IIS Folder') {
             steps {
-                echo '📂 Copy _frontend từ D:\\BaiTapLon vào thư mục IIS...'
-                bat 'xcopy "%SOURCE_PATH%" "%IIS_PATH%" /E /Y /I /R'
+                echo '📂 Copy frontend vào thư mục IIS...'
+                bat '''
+                if exist "%SOURCE_PATH%" (
+                    xcopy "%SOURCE_PATH%\\*" "%IIS_PATH%\\" /E /Y /I /R
+                ) else (
+                    echo ❌ SOURCE_PATH không tồn tại!
+                    exit 1
+                )
+                '''
             }
         }
 
         stage('🌐 Deploy to IIS') {
             steps {
-                echo "🌐 Triển khai website lên IIS tại cổng ${env.IIS_PORT}..."
+                echo "🌐 Deploy web lên IIS cổng ${env.IIS_PORT}..."
 
-                bat '''
-                C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; $siteName = 'QuanLyThietBiSite'; $port = 81; $physicalPath = 'C:\\\\wwwroot\\\\QuanLyThietBi'; if (Test-Path IIS:\\\\Sites\\\\$siteName) { Write-Output '🌐 Website đã tồn tại. Restart lại...'; Restart-WebItem IIS:\\\\Sites\\\\$siteName } else { Write-Output '🆕 Website chưa tồn tại. Tạo mới...'; New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath }"
-                '''
+                bat """
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "
+                    Import-Module WebAdministration;
+                    \$siteName = '${env.SITE_NAME}';
+                    \$port = ${env.IIS_PORT};
+                    \$physicalPath = '${env.IIS_PATH}';
+
+                    if (!(Test-Path \$physicalPath)) {
+                        Write-Error '❌ Thư mục deploy không tồn tại!';
+                        exit 1;
+                    }
+
+                    if (Test-Path IIS:\\Sites\\\$siteName) {
+                        Write-Output '🌐 Site đã tồn tại. Restart lại...';
+                        Restart-WebItem IIS:\\Sites\\\$siteName;
+                    } else {
+                        Write-Output '🆕 Tạo mới site IIS...';
+                        New-Website -Name \$siteName -Port \$port -PhysicalPath \$physicalPath -Force;
+                    }
+                "
+                """
             }
         }
 
         stage('✅ Finish') {
             steps {
-                echo '✅ Triển khai hoàn tất! Truy cập:'
+                echo '✅ Triển khai xong. Truy cập:'
                 echo '👉 http://localhost:81'
             }
         }
