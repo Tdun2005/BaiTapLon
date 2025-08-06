@@ -10,68 +10,75 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(270deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+      background: linear-gradient(270deg, #a1c4fd, #d4fc79, #ffecd2, #a6c1ee);
       background-size: 1000% 1000%;
-      animation: sparkle 15s ease infinite;
+      animation: gradientMove 20s ease infinite;
       color: #333;
       min-height: 100vh;
-      position: relative;
     }
-    @keyframes sparkle {
+
+    @keyframes gradientMove {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+
     header {
-      background: linear-gradient(to right, #00c6ff, #0072ff);
-      padding: 20px;
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      padding: 25px;
       text-align: center;
       color: white;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: bold;
       text-transform: uppercase;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
     }
+
     .container {
       max-width: 1100px;
       margin: 30px auto;
       padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      background: #ffffffee;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
+
     h2 {
       text-align: center;
       font-size: 24px;
       margin-bottom: 20px;
-      background: linear-gradient(to right, #ff758c, #ff7eb3);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #0072ff;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 10px;
     }
+
     th, td {
       border: 1px solid #ccc;
-      padding: 12px 10px;
+      padding: 12px;
       text-align: left;
       font-size: 15px;
     }
+
     th {
-      background-color: #f8f9fa;
-    }
-    tr:hover {
       background-color: #f1f1f1;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
       transition: 0.3s ease;
     }
+
     .btn-container {
       text-align: center;
       margin-top: 30px;
     }
+
     button {
-      padding: 12px 20px;
+      padding: 12px 22px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
@@ -80,19 +87,48 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
+
     .back-btn {
       background: #6c757d;
       color: white;
     }
+
     .back-btn:hover {
       background: #5a6268;
     }
+
     .export-btn {
       background: #28a745;
       color: white;
     }
+
     .export-btn:hover {
       background: #218838;
+    }
+
+    .suggestions {
+      margin-top: 40px;
+      padding: 20px;
+      background: #fff9f0;
+      border-left: 5px solid #ffa502;
+      border-radius: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .suggestions h3 {
+      margin-top: 0;
+      color: #e67e22;
+    }
+
+    .suggestions ul {
+      list-style: none;
+      padding-left: 20px;
+    }
+
+    .suggestions ul li::before {
+      content: "🔎 ";
+      margin-right: 6px;
     }
   </style>
 </head>
@@ -115,6 +151,13 @@
       <tbody id="deviceListBody"></tbody>
     </table>
 
+    <div class="suggestions" id="deviceSuggestions">
+      <h3>🔧 Hướng dẫn xử lý theo tình trạng thiết bị</h3>
+      <ul id="suggestionList">
+        <li>Đang tải dữ liệu...</li>
+      </ul>
+    </div>
+
     <div class="btn-container">
       <button class="export-btn" onclick="exportToPDF()">📄 Xuất PDF</button>
       <button class="back-btn" onclick="window.location.href='dashboard.html'">← Quay lại trang chủ</button>
@@ -133,7 +176,14 @@
 
         const devices = result.data;
         const tbody = document.getElementById("deviceListBody");
+        const suggestionList = document.getElementById("suggestionList");
         tbody.innerHTML = "";
+        suggestionList.innerHTML = "";
+
+        if (devices.length === 0) {
+          suggestionList.innerHTML = "<li>Không có thiết bị nào được tìm thấy.</li>";
+          return;
+        }
 
         devices.forEach((device) => {
           const row = document.createElement("tr");
@@ -146,6 +196,26 @@
             <td>${device.desc || "—"}</td>
           `;
           tbody.appendChild(row);
+
+          // Gợi ý theo tình trạng thiết bị
+          const status = device.status?.toLowerCase() || '';
+          let suggestion = '';
+
+          if (status.includes("hỏng") || status.includes("lỗi")) {
+            suggestion = `Thiết bị "${device.name}" nên được mang đi bảo trì hoặc sửa chữa sớm.`;
+          } else if (status.includes("tốt") || status.includes("sẵn sàng")) {
+            suggestion = `Thiết bị "${device.name}" có thể mượn và sử dụng bình thường.`;
+          } else if (status.includes("đang sử dụng") || status.includes("đang mượn")) {
+            suggestion = `Thiết bị "${device.name}" đang được sử dụng. Vui lòng chờ đến khi trả thiết bị.`;
+          } else if (status.includes("mất") || status.includes("không tìm thấy")) {
+            suggestion = `Thiết bị "${device.name}" cần được báo cáo để xử lý.`;
+          }
+
+          if (suggestion) {
+            const li = document.createElement("li");
+            li.textContent = suggestion;
+            suggestionList.appendChild(li);
+          }
         });
       } catch (error) {
         console.error("❌ Không thể tải danh sách thiết bị:", error);

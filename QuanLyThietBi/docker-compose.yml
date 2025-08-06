@@ -1,0 +1,14 @@
+services:
+  backend:
+    build: ./_backend
+    ports:
+      - "2704:2704"
+    volumes:
+      - ./_backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./_frontend
+    ports:
+      - "8088:80"  # ✅ Đổi 8080 → 8088 cho tránh đụng Jenkins
+    restart: unless-stopped

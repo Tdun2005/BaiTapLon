@@ -52,5 +52,14 @@
     "date": "2025-08-02",
     "desc": "Bút sử dụng thông minh",
     "deletedAt": "01:49:57 5/8/2025"
+  },
+  {
+    "id": 12,
+    "name": "Máy rung",
+    "type": "Khác",
+    "status": "Cũ",
+    "date": "2025-08-13",
+    "desc": "hh",
+    "deletedAt": "18:21:26 5/8/2025"
   }
 ]

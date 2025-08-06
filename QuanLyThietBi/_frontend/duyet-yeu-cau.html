@@ -154,14 +154,23 @@
       document.getElementById("result").textContent = "";
     });
 
-    async function approveRequest(approved) {
+    async function approveRequest(isApproved) {
       const select = document.getElementById("requestSelect");
       const selectedId = parseInt(select.value);
-      if (!selectedId) return;
-
       const resultBox = document.getElementById("result");
+
+      if (!selectedId) {
+        resultBox.textContent = "⚠️ Bạn chưa chọn đơn mượn nào.";
+        resultBox.style.color = "#dc3545";
+        return;
+      }
+
+      const apiUrl = isApproved
+        ? "http://localhost:2704/api/borrow/approve"
+        : "http://localhost:2704/api/borrow/reject";
+
       try {
-        const res = await fetch("http://localhost:2704/api/borrow/approve", {
+        const res = await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: selectedId })
@@ -169,9 +178,9 @@
         const result = await res.json();
 
         if (result.success) {
-          resultBox.style.color = approved ? "#28a745" : "#dc3545";
-          resultBox.style.background = approved ? "#e8f5e9" : "#fdecea";
-          resultBox.textContent = approved
+          resultBox.style.color = isApproved ? "#28a745" : "#dc3545";
+          resultBox.style.background = isApproved ? "#e8f5e9" : "#fdecea";
+          resultBox.textContent = isApproved
             ? "✅ Bạn đã duyệt đơn mượn thiết bị thành công!"
             : "❌ Đơn mượn thiết bị đã bị từ chối!";
           await loadBorrowRequests();

@@ -12,7 +12,9 @@ const DEVICES_FILE = path.join(__dirname, 'data', 'devices.json');
 const DELETED_DEVICES_FILE = path.join(__dirname, 'data', 'deleted_devices.json');
 const BORROW_REQUESTS_FILE = path.join(__dirname, 'data', 'borrow_requests.json');
 const REPORTS_FILE = path.join(__dirname, 'data', 'device-reports.json');
-const CLASSIFIED_DEVICES_FILE = path.join(__dirname, 'data', 'classified-devices.json'); // ✅ THÊM
+const CLASSIFIED_DEVICES_FILE = path.join(__dirname, 'data', 'classified-devices.json');
+const APPROVED_REQUESTS_FILE = path.join(__dirname, 'data', 'approved-requests.json'); // ✅ NEW
+const REJECTED_REQUESTS_FILE = path.join(__dirname, 'data', 'rejected-requests.json'); // ✅ NEW
 
 // Middleware
 app.use(cors());
@@ -178,21 +180,44 @@ app.post('/api/borrow', (req, res) => {
   res.json({ success: true, message: "Đã gửi yêu cầu mượn thiết bị", data: newRequest });
 });
 
-// ========== DUYỆT / XOÁ YÊU CẦU MƯỢN ==========
+// ========== DUYỆT ĐƠN ==========
 app.post('/api/borrow/approve', (req, res) => {
   const { id } = req.body;
   if (!id) return res.status(400).json({ success: false, message: "Thiếu ID đơn mượn" });
 
-  let requests = readJSON(BORROW_REQUESTS_FILE);
+  const requests = readJSON(BORROW_REQUESTS_FILE);
   const index = requests.findIndex(r => r.id === parseInt(id));
-
   if (index === -1) return res.status(404).json({ success: false, message: "Không tìm thấy đơn mượn" });
 
   const removed = requests.splice(index, 1)[0];
   writeJSON(BORROW_REQUESTS_FILE, requests);
 
-  console.log("✅ Đã duyệt và xoá đơn mượn:", removed);
-  res.json({ success: true, message: "Đơn mượn đã được xử lý và xoá", data: removed });
+  const approved = readJSON(APPROVED_REQUESTS_FILE);
+  approved.push(removed);
+  writeJSON(APPROVED_REQUESTS_FILE, approved);
+
+  console.log("✅ Đã duyệt đơn mượn:", removed);
+  res.json({ success: true, message: "Đã duyệt và lưu đơn mượn" });
+});
+
+// ========== TỪ CHỐI ĐƠN ==========
+app.post('/api/borrow/reject', (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ success: false, message: "Thiếu ID đơn mượn" });
+
+  const requests = readJSON(BORROW_REQUESTS_FILE);
+  const index = requests.findIndex(r => r.id === parseInt(id));
+  if (index === -1) return res.status(404).json({ success: false, message: "Không tìm thấy đơn mượn" });
+
+  const removed = requests.splice(index, 1)[0];
+  writeJSON(BORROW_REQUESTS_FILE, requests);
+
+  const rejected = readJSON(REJECTED_REQUESTS_FILE);
+  rejected.push(removed);
+  writeJSON(REJECTED_REQUESTS_FILE, rejected);
+
+  console.log("❌ Đã từ chối đơn mượn:", removed);
+  res.json({ success: true, message: "Đã từ chối và lưu đơn mượn" });
 });
 
 // ========== BÁO CÁO SỰ CỐ ==========
@@ -229,7 +254,7 @@ app.post('/api/report', (req, res) => {
   res.json({ success: true, message: "Báo cáo sự cố thành công", data: newReport });
 });
 
-// ========== LƯU PHÂN LOẠI PHÒNG BAN ==========
+// ========== LƯU PHÂN LOẠI ==========
 app.post('/api/classified-devices', (req, res) => {
   const { devices } = req.body;
   if (!devices || !Array.isArray(devices)) {
@@ -249,3 +274,5 @@ app.post('/api/classified-devices', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ API đang chạy tại http://localhost:${PORT}`);
 });
+
+

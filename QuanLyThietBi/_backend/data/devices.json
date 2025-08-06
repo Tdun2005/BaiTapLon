@@ -1,18 +1,26 @@
 [
   {
-    "id": 12,
-    "name": "Máy rung",
-    "type": "Khác",
-    "status": "Cũ",
-    "date": "2025-08-13",
-    "desc": "hh"
-  },
-  {
     "id": 5,
     "name": "Máy sửa đổi cấu trúc thư mục máy tính",
     "type": "thiết bị tối tân",
     "status": "Mới",
     "date": "2025-08-03",
     "desc": "thiết bị sử dụng công nghệ cao"
+  },
+  {
+    "id": 4,
+    "name": "Thước kẻ 50cm",
+    "type": "thước",
+    "status": "Cũ",
+    "date": "2025-08-01",
+    "desc": "cũ"
+  },
+  {
+    "id": 1,
+    "name": "Bút mực viết bảng",
+    "type": "Bút",
+    "status": "Cũ",
+    "date": "2025-08-06",
+    "desc": "bút viết bảng siêu mượt"
   }
 ]

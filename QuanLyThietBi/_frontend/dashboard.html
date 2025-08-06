@@ -10,9 +10,9 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(270deg, #e0c3fc, #8ec5fc, #fbc2eb, #fad0c4, #a1c4fd);
+      background: linear-gradient(270deg, #d3cce3, #e9e4f0, #fdfbfb);
       background-size: 1000% 1000%;
-      animation: sparkle 20s ease infinite;
+      animation: sparkle 25s ease infinite;
       color: #333;
       min-height: 100vh;
       position: relative;
@@ -61,7 +61,26 @@
       transform: scale(1.1);
     }
 
-    .terms, .device-list-container {
+    .terms {
+      background: #ffffffdd;
+      padding: 30px;
+      border-radius: 16px;
+      font-size: 17px;
+      color: #444;
+      margin: 40px auto;
+      max-width: 1000px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      line-height: 1.6;
+    }
+
+    .terms strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .device-list-container {
       background: #ffffffdd;
       padding: 24px;
       border-radius: 12px;
@@ -119,6 +138,14 @@
     .export-btn:hover {
       background: #218838;
     }
+
+    .contact-footer {
+      text-align: center;
+      font-style: italic;
+      margin: 60px 0 20px;
+      color: #222;
+      font-size: 17px;
+    }
   </style>
 </head>
 <body>
@@ -127,8 +154,12 @@
   <nav id="roleActions"></nav>
 
   <div class="terms">
-    <strong>Điều khoản sử dụng:</strong> Hệ thống quản lý thiết bị này được thiết kế phục vụ việc theo dõi, thống kê và kiểm kê tài sản công của nhà trường.
-    <br>Mọi hành vi gian lận hoặc sử dụng sai mục đích đều bị nghiêm cấm.
+    <strong>📑 Điều khoản sử dụng:</strong>
+    Hệ thống quản lý thiết bị được phát triển nhằm mục đích hỗ trợ việc quản lý, giám sát và thống kê các tài sản công trong phạm vi nhà trường. Người dùng có trách nhiệm tuân thủ đúng các chức năng theo vai trò được cấp quyền. 
+    <br><br>
+    Mọi hành vi truy cập trái phép, thay đổi dữ liệu hoặc sử dụng hệ thống với mục đích gây hại sẽ bị xử lý theo quy định của nhà trường và pháp luật hiện hành. 
+    <br><br>
+    Để biết thêm thông tin hoặc hỗ trợ kỹ thuật, vui lòng liên hệ với quản trị viên hệ thống.
   </div>
 
   <div class="device-list-container" id="deviceListContainer">
@@ -148,6 +179,8 @@
     </table>
     <button class="export-btn" onclick="exportToPDF()">📄 Xuất PDF</button>
   </div>
+
+  <p class="contact-footer">Mọi thông tin xin vui lòng liên hệ PGS.TS Nguyễn Khắc Tuấn Bách</p>
 
   <button class="logout-btn" onclick="logout()">Đăng xuất</button>
 
