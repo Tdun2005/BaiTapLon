@@ -22,5 +22,13 @@
     "status": "Cũ",
     "date": "2025-08-06",
     "desc": "bút viết bảng siêu mượt"
+  },
+  {
+    "id": 2,
+    "name": "Máy tính sấm sét",
+    "type": "Máy tính",
+    "status": "Cũ",
+    "date": "2025-08-28",
+    "desc": "mượn máy code"
   }
 ]
