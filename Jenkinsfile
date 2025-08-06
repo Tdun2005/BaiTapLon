@@ -39,27 +39,25 @@ pipeline {
             steps {
                 echo "🌐 Deploy web lên IIS cổng ${env.IIS_PORT}..."
 
-                bat """
-                C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"
-                    Import-Module WebAdministration;
-                    \$siteName = '${env.SITE_NAME}';
-                    \$port = ${env.IIS_PORT};
-                    \$physicalPath = '${env.IIS_PATH}';
-
-                    if (!(Test-Path \$physicalPath)) {
-                        Write-Error '❌ Thư mục deploy không tồn tại!';
-                        exit 1;
-                    }
-
-                    if (Test-Path IIS:\\\\Sites\\\\\$siteName) {
-                        Write-Output '🌐 Site đã tồn tại. Restart lại...';
-                        Restart-WebItem IIS:\\\\Sites\\\\\$siteName;
-                    } else {
-                        Write-Output '🆕 Tạo mới site IIS...';
-                        New-Website -Name \$siteName -Port \$port -PhysicalPath \$physicalPath -Force;
-                    }
-                \"
-                """
+                bat '''
+                set "POWERSHELL_SCRIPT=\
+Import-Module WebAdministration; \
+$siteName = \\"QuanLyThietBiSite\\"; \
+$port = 81; \
+$physicalPath = \\"C:\\\\wwwroot\\\\QuanLyThietBi\\"; \
+if (!(Test-Path $physicalPath)) { \
+    Write-Error \\"❌ Thư mục deploy không tồn tại!\\"; \
+    exit 1; \
+} \
+if (Test-Path IIS:\\\\Sites\\\\$siteName) { \
+    Write-Output \\"🌐 Site đã tồn tại. Restart lại...\\"; \
+    Restart-WebItem IIS:\\\\Sites\\\\$siteName; \
+} else { \
+    Write-Output \\"🆕 Tạo mới site IIS...\\"; \
+    New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath -Force; \
+}"
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "%POWERSHELL_SCRIPT%"
+                '''
             }
         }
 
