@@ -40,7 +40,7 @@ pipeline {
                 echo "🌐 Deploy web lên IIS cổng ${env.IIS_PORT}..."
 
                 bat """
-                powershell -NoProfile -ExecutionPolicy Bypass -Command "
+                C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"
                     Import-Module WebAdministration;
                     \$siteName = '${env.SITE_NAME}';
                     \$port = ${env.IIS_PORT};
@@ -51,14 +51,14 @@ pipeline {
                         exit 1;
                     }
 
-                    if (Test-Path IIS:\\Sites\\\$siteName) {
+                    if (Test-Path IIS:\\\\Sites\\\\\$siteName) {
                         Write-Output '🌐 Site đã tồn tại. Restart lại...';
-                        Restart-WebItem IIS:\\Sites\\\$siteName;
+                        Restart-WebItem IIS:\\\\Sites\\\\\$siteName;
                     } else {
                         Write-Output '🆕 Tạo mới site IIS...';
                         New-Website -Name \$siteName -Port \$port -PhysicalPath \$physicalPath -Force;
                     }
-                "
+                \"
                 """
             }
         }
