@@ -6,6 +6,7 @@ pipeline {
         IIS_PORT = "81"
         SOURCE_PATH = "D:\\BaiTapLon\\QuanLyThietBi\\_frontend"
         IIS_PATH = "C:\\wwwroot\\QuanLyThietBi"
+        POWERSHELL_PATH = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
     }
 
     stages {
@@ -56,7 +57,7 @@ if (Test-Path IIS:\\\\Sites\\\\$siteName) { \
     Write-Output \\"🆕 Tạo mới site IIS...\\"; \
     New-Website -Name $siteName -Port $port -PhysicalPath $physicalPath -Force; \
 }"
-                powershell -NoProfile -ExecutionPolicy Bypass -Command "%POWERSHELL_SCRIPT%"
+                %POWERSHELL_PATH% -NoProfile -ExecutionPolicy Bypass -Command "%POWERSHELL_SCRIPT%"
                 '''
             }
         }
